@@ -1541,29 +1541,34 @@
       }
 
       function drawLanes() {
+        // Lanes extend fully to the BOTTOM of screen (H), not just hitBarY.
+        // The hit bar is drawn ON TOP of the lanes as a separate element.
         for (let i = 0; i < numLanes; i++) {
           const pulse = lanePulse[i];
           const blX = i * laneW + 0.5;
           const brX = (i + 1) * laneW - 0.5;
-          const grad = ctx.createLinearGradient(0, vanishY, 0, hitBarY);
+          // Gradient from vanishY all the way to H (full screen bottom)
+          const grad = ctx.createLinearGradient(0, vanishY, 0, H);
           grad.addColorStop(0,    hexA(laneColors[i], 0.10 + pulse * 0.10));
           grad.addColorStop(0.55, hexA(laneColors[i], 0.65 + pulse * 0.18));
-          grad.addColorStop(1,    hexA(laneColors[i], 0.85 + pulse * 0.12));
+          grad.addColorStop(1,    hexA(laneColors[i], 0.90 + pulse * 0.08));
           ctx.beginPath();
           ctx.moveTo(vanishX, vanishY);
-          ctx.lineTo(brX, hitBarY);
-          ctx.lineTo(blX, hitBarY);
+          ctx.lineTo(brX, H);      // extend to screen bottom
+          ctx.lineTo(blX, H);
           ctx.closePath();
           ctx.fillStyle = grad; ctx.fill();
         }
+        // Separator lines from vanishing point to screen bottom
         ctx.strokeStyle = 'rgba(255,255,255,0.55)';
         ctx.lineWidth = 1.5;
         for (let i = 0; i <= numLanes; i++) {
           ctx.beginPath();
           ctx.moveTo(vanishX, vanishY);
-          ctx.lineTo(i * laneW, hitBarY);
+          ctx.lineTo(i * laneW, H);   // extend to screen bottom
           ctx.stroke();
         }
+        // Glossy center highlight strips — full height
         for (let i = 0; i < numLanes; i++) {
           const cx = (i + 0.5) * laneW;
           const hw = laneW * 0.28;
@@ -1573,13 +1578,12 @@
           gl.addColorStop(1,   'rgba(255,255,255,0)');
           ctx.beginPath();
           ctx.moveTo(vanishX, vanishY);
-          ctx.lineTo(cx + hw, hitBarY);
-          ctx.lineTo(cx - hw, hitBarY);
+          ctx.lineTo(cx + hw, H);
+          ctx.lineTo(cx - hw, H);
           ctx.closePath();
           ctx.fillStyle = gl; ctx.fill();
         }
-        ctx.fillStyle = 'rgba(5,5,15,0.65)';
-        ctx.fillRect(0, hitBarY + 6, W, H - hitBarY);
+        // No dark floor — lanes are visible all the way to the bottom under the buttons
       }
 
       function drawHitBar() {
